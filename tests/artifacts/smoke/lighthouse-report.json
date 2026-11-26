@@ -1,0 +1,30 @@
+{
+  "lighthouseVersion": "mock-13.6.0",
+  "requestedUrl": "http://127.0.0.1:0",
+  "finalDisplayedUrl": "http://127.0.0.1:0",
+  "categories": {
+    "performance": {
+      "score": 0.94
+    },
+    "accessibility": {
+      "score": 0.98
+    },
+    "best-practices": {
+      "score": 0.96
+    }
+  },
+  "audits": {
+    "cumulative-layout-shift": {
+      "numericValue": 0.004
+    },
+    "largest-contentful-paint": {
+      "numericValue": 1320
+    },
+    "total-blocking-time": {
+      "numericValue": 45
+    },
+    "first-contentful-paint": {
+      "numericValue": 640
+    }
+  }
+}

@@ -1,0 +1,827 @@
+{
+  "schemaVersion": "1.0.0",
+  "runId": "2026-11-26T12-24-36-383Z",
+  "mode": "smoke-mock",
+  "targetUrl": "mock://ephemeral",
+  "environment": {
+    "node": "v24.13.0",
+    "platform": "win32",
+    "browser": "chrome (C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe)",
+    "webglRenderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+  },
+  "summary": {
+    "status": "PASS",
+    "total": 78,
+    "passed": 78,
+    "failed": 0,
+    "skipped": 0,
+    "durationMs": 190346
+  },
+  "tiers": {
+    "static": {
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0
+    },
+    "tier1": {
+      "passed": 35,
+      "failed": 0,
+      "skipped": 0
+    },
+    "tier2": {
+      "passed": 25,
+      "failed": 0,
+      "skipped": 0
+    },
+    "tier3": {
+      "passed": 9,
+      "failed": 0,
+      "skipped": 0
+    },
+    "tier4": {
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "checks": [
+    {
+      "id": "SMOKE-01",
+      "tier": "static",
+      "feature": "Syntax Check",
+      "name": "node --check passed on all 10 .mjs files",
+      "status": "PASS",
+      "durationMs": 0,
+      "metrics": {
+        "files": 10
+      }
+    },
+    {
+      "id": "SMOKE-02",
+      "tier": "static",
+      "feature": "Runner Self-Test",
+      "name": "TestRunner accurately detects both PASS and intentional FAIL assertions",
+      "status": "PASS",
+      "durationMs": 0
+    },
+    {
+      "id": "SMOKE-03",
+      "tier": "static",
+      "feature": "Static Rule Engine",
+      "name": "static-checks catches TODO, RGBELoader, Inter, and purple gradients, and passes clean fixtures",
+      "status": "PASS",
+      "durationMs": 0
+    },
+    {
+      "id": "T1-F1-05",
+      "tier": 1,
+      "feature": "#1 Preview Boot",
+      "name": "Server serves HTTP 200, app mounts cleanly with zero errors",
+      "status": "PASS",
+      "durationMs": 1429,
+      "metrics": {
+        "httpStatus": 200
+      }
+    },
+    {
+      "id": "T1-F2-04",
+      "tier": 1,
+      "feature": "#2 Scroll Height",
+      "name": "Scroll container configures 900vh height",
+      "status": "PASS",
+      "durationMs": 664,
+      "metrics": {
+        "ratio": 9
+      }
+    },
+    {
+      "id": "T1-F3-03",
+      "tier": 1,
+      "feature": "#3 Clean Fallback Boot",
+      "name": "Booting without optional assets emits zero pageerror or console.error",
+      "status": "PASS",
+      "durationMs": 1284
+    },
+    {
+      "id": "T1-F3-04",
+      "tier": 1,
+      "feature": "#3 Fallback Warnings",
+      "name": "Console captures explicit console.warn messages for missing model/HDR fallbacks",
+      "status": "PASS",
+      "durationMs": 543,
+      "metrics": {
+        "warningsCount": 2
+      }
+    },
+    {
+      "id": "T1-F3-05",
+      "tier": 1,
+      "feature": "#3 Debug Flags",
+      "name": "getSceneDebug reports isReady, isFallbackModel, isFallbackEnv",
+      "status": "PASS",
+      "durationMs": 538
+    },
+    {
+      "id": "T1-F4-01",
+      "tier": 1,
+      "feature": "#4 Non-Blank WebGL",
+      "name": "WebGL canvas renders non-blank multi-tone pixels at Hero",
+      "status": "PASS",
+      "durationMs": 1237,
+      "metrics": {
+        "width": 1440,
+        "height": 900,
+        "samples": 4290,
+        "minLum": 11.64,
+        "maxLum": 226.19,
+        "range": 214.55,
+        "stdDev": 37.32,
+        "nonBlank": true
+      }
+    },
+    {
+      "id": "T1-F4-02",
+      "tier": 1,
+      "feature": "#4 Headlight Ramp",
+      "name": "Headlights ramp from dim DRL at 0.00 to full intensity by CH 01 end",
+      "status": "PASS",
+      "durationMs": 1548,
+      "metrics": {
+        "start": 0.15,
+        "end": 0.9552631578947368
+      }
+    },
+    {
+      "id": "T1-F4-03",
+      "tier": 1,
+      "feature": "#4 Driver Door Hinge",
+      "name": "door_driver opens to <= -1.0 rad (~-65 deg) in CH 02 and closes in CH 03",
+      "status": "PASS",
+      "durationMs": 1546,
+      "metrics": {
+        "ch2Door": -1.134,
+        "ch3Door": 0
+      }
+    },
+    {
+      "id": "T1-F4-04",
+      "tier": 1,
+      "feature": "#4 Interior Light",
+      "name": "interiorLight ramps up (>= 0.65) in CH 02 when door opens",
+      "status": "PASS",
+      "durationMs": 1625
+    },
+    {
+      "id": "T1-F4-05",
+      "tier": 1,
+      "feature": "#4 Fog Parallax",
+      "name": "fogDensity clears between Hero (0.00) and close front-quarter (~0.18)",
+      "status": "PASS",
+      "durationMs": 1502,
+      "metrics": {
+        "heroFog": 0.055,
+        "nearFog": 0.02942105263157895
+      }
+    },
+    {
+      "id": "T1-F5-01",
+      "tier": 1,
+      "feature": "#5 Pixel Ratio Cap",
+      "name": "Renderer caps pixelRatio <= 2",
+      "status": "PASS",
+      "durationMs": 585
+    },
+    {
+      "id": "T1-F5-02",
+      "tier": 1,
+      "feature": "#5 Postprocessing Clean",
+      "name": "Zero WebGL shader/program errors across all chapters",
+      "status": "PASS",
+      "durationMs": 3509
+    },
+    {
+      "id": "T1-F5-03",
+      "tier": 1,
+      "feature": "#5 Bonnet Rattle",
+      "name": "CH 04 engine idle activates bonnetRattleActive under normal motion",
+      "status": "PASS",
+      "durationMs": 1082
+    },
+    {
+      "id": "T1-F5-04",
+      "tier": 1,
+      "feature": "#5 Exhaust Glow",
+      "name": "CH 06 active rev increases exhaustGlow above CH 06 idle baseline",
+      "status": "PASS",
+      "durationMs": 3764,
+      "metrics": {
+        "baseGlow": 0.2941,
+        "peakGlow": 1.7
+      }
+    },
+    {
+      "id": "T1-F5-05",
+      "tier": 1,
+      "feature": "#5 Clean Teardown",
+      "name": "Navigating away triggers clean teardown with zero unhandled errors",
+      "status": "PASS",
+      "durationMs": 1138
+    },
+    {
+      "id": "T1-F6-01",
+      "tier": 1,
+      "feature": "#6 Lazy Audio Gate",
+      "name": "Zero /assets/audio/* requests prior to clicking Enable sound",
+      "status": "PASS",
+      "durationMs": 1179
+    },
+    {
+      "id": "T1-F6-02",
+      "tier": 1,
+      "feature": "#6 Audio Unlock",
+      "name": "Clicking Enable sound resumes AudioContext and activates procedural fallback with warn",
+      "status": "PASS",
+      "durationMs": 1180
+    },
+    {
+      "id": "T1-F6-03",
+      "tier": 1,
+      "feature": "#6 CH 04 Idle",
+      "name": "Entering CH 04 starts engine and settles around ~650 RPM idle",
+      "status": "PASS",
+      "durationMs": 2519,
+      "metrics": {
+        "idleRPM": 525
+      }
+    },
+    {
+      "id": "T1-F6-04",
+      "tier": 1,
+      "feature": "#6 Cockpit vs Exterior Mix",
+      "name": "mix is cockpit-muffled in CH 03-04 and exterior in CH 05-06",
+      "status": "PASS",
+      "durationMs": 2247,
+      "metrics": {
+        "ch3Mix": 0.92,
+        "ch4Mix": 0.92,
+        "ch6Mix": 0.06
+      }
+    },
+    {
+      "id": "T1-F6-05",
+      "tier": 1,
+      "feature": "#6 Rev & Release",
+      "name": "Holding REV IT TO 7200 RPM reaches limiter and releasing decelerates",
+      "status": "PASS",
+      "durationMs": 7345,
+      "metrics": {
+        "peakRPM": 7200,
+        "releasedRPM": 1160
+      }
+    },
+    {
+      "id": "T1-F7-01",
+      "tier": 1,
+      "feature": "#7 Editorial Palette",
+      "name": "Computed styles enforce #0b0c0a bg, #e8e2d3 text, and #e0541f accent",
+      "status": "PASS",
+      "durationMs": 571
+    },
+    {
+      "id": "T1-F7-02",
+      "tier": 1,
+      "feature": "#7 Typography & Gradients",
+      "name": "Computed fonts match editorial trio with zero Inter/Roboto/Arial or purple gradients",
+      "status": "PASS",
+      "durationMs": 515
+    },
+    {
+      "id": "T1-F7-03",
+      "tier": 1,
+      "feature": "#7 Letterbox & Grain",
+      "name": "Letterbox bars, 1px hairline rules, and non-blocking grain overlay render",
+      "status": "PASS",
+      "durationMs": 635
+    },
+    {
+      "id": "T1-F7-04",
+      "tier": 1,
+      "feature": "#7 Mobile Zero Overflow",
+      "name": "Mobile 375x812 viewport has zero horizontal overflow",
+      "status": "PASS",
+      "durationMs": 466
+    },
+    {
+      "id": "T1-F7-05",
+      "tier": 1,
+      "feature": "#7 Reduced-Motion CSS",
+      "name": "prefers-reduced-motion: reduce disables custom cursor activation",
+      "status": "PASS",
+      "durationMs": 621
+    },
+    {
+      "id": "T1-F8-01",
+      "tier": 1,
+      "feature": "#8 Loading Curtain",
+      "name": "Loading curtain renders percentage and dismisses cleanly on ready",
+      "status": "PASS",
+      "durationMs": 590
+    },
+    {
+      "id": "T1-F8-02",
+      "tier": 1,
+      "feature": "#8 Hero Reveal & Scroll Cue",
+      "name": "DEFENDER V8 hero renders with per-character spans and Scroll cue",
+      "status": "PASS",
+      "durationMs": 595
+    },
+    {
+      "id": "T1-F8-03",
+      "tier": 1,
+      "feature": "#8 Chapter Overlay & Spec",
+      "name": "Chapter overlay updates numeral, title, copy, and exact SPEC_LINE",
+      "status": "PASS",
+      "durationMs": 1009
+    },
+    {
+      "id": "T1-F8-04",
+      "tier": 1,
+      "feature": "#8 Progress Rail",
+      "name": "Right-hand progress rail renders 01-06 and click-scrolls to chapter",
+      "status": "PASS",
+      "durationMs": 1370
+    },
+    {
+      "id": "T1-F8-05",
+      "tier": 1,
+      "feature": "#8 Gauge, Rev & Licensing",
+      "name": "RPM gauge in CH 03-04, rev control in CH 06, and licensing modal work",
+      "status": "PASS",
+      "durationMs": 1872
+    },
+    {
+      "id": "T1-F9-01",
+      "tier": 1,
+      "feature": "#9 Pinned Canvas",
+      "name": "WebGL canvas stays pinned to viewport across entire scroll range",
+      "status": "PASS",
+      "durationMs": 2631
+    },
+    {
+      "id": "T1-F9-02",
+      "tier": 1,
+      "feature": "#9 Forward Choreography",
+      "name": "Forward scroll transitions sequentially 01->02->03->04->05->06 with changing camera",
+      "status": "PASS",
+      "durationMs": 3329
+    },
+    {
+      "id": "T1-F9-03",
+      "tier": 1,
+      "feature": "#9 Single rAF Loop",
+      "name": "Application runs within a single unified requestAnimationFrame loop",
+      "status": "PASS",
+      "durationMs": 564
+    },
+    {
+      "id": "T1-F9-04",
+      "tier": 1,
+      "feature": "#9 GPU-Only DOM Motion",
+      "name": "Animated HUD overlays avoid layout-thrashing top/left/width/height transitions",
+      "status": "PASS",
+      "durationMs": 591
+    },
+    {
+      "id": "T1-F9-05",
+      "tier": 1,
+      "feature": "#9 Reduced-Motion Shake",
+      "name": "prefers-reduced-motion: reduce keeps activeShakeAmplitude at 0",
+      "status": "PASS",
+      "durationMs": 3981
+    },
+    {
+      "id": "T2-SCR-01",
+      "tier": 2,
+      "feature": "#9 Scroll Boundaries",
+      "name": "Extrema 0.0 and 1.0 produce finite telemetry locked to CH 01 and CH 06",
+      "status": "PASS",
+      "durationMs": 1497
+    },
+    {
+      "id": "T2-SCR-02",
+      "tier": 2,
+      "feature": "#9 Snap Jumps",
+      "name": "Instant snap jump 0.0 -> 1.0 -> 0.0 resets rig and HUD state cleanly",
+      "status": "PASS",
+      "durationMs": 1527
+    },
+    {
+      "id": "T2-SCR-03",
+      "tier": 2,
+      "feature": "#9 Reverse Scrub",
+      "name": "Reverse scrub 06->01 re-opens door in CH 02, closes in CH 01, stops engine",
+      "status": "PASS",
+      "durationMs": 2257
+    },
+    {
+      "id": "T2-SCR-04",
+      "tier": 2,
+      "feature": "#9 Oscillation Stability",
+      "name": "Rapid oscillation across CH 02 latch and CH 04 ignition completes cleanly",
+      "status": "PASS",
+      "durationMs": 5238
+    },
+    {
+      "id": "T2-SCR-05",
+      "tier": 2,
+      "feature": "#2 Transition Edges",
+      "name": "Chapter transition edge values resolve cleanly with non-empty copy",
+      "status": "PASS",
+      "durationMs": 2894
+    },
+    {
+      "id": "T2-REV-01",
+      "tier": 2,
+      "feature": "#6 Short Tap Blip",
+      "name": "Short 120ms tap blips RPM briefly without engaging limiter",
+      "status": "PASS",
+      "durationMs": 2214
+    },
+    {
+      "id": "T2-REV-02",
+      "tier": 2,
+      "feature": "#6 Limiter Bounce",
+      "name": "Sustained 3200ms hold reaches 6900-7200 RPM limiter bounce",
+      "status": "PASS",
+      "durationMs": 4959,
+      "metrics": {
+        "maxRPM": 7200
+      }
+    },
+    {
+      "id": "T2-REV-03",
+      "tier": 2,
+      "feature": "#6 Decel Physics",
+      "name": "Releasing from limiter decelerates smoothly back toward ~650 RPM",
+      "status": "PASS",
+      "durationMs": 8174,
+      "metrics": {
+        "midRPM": 1752,
+        "settledRPM": 873
+      }
+    },
+    {
+      "id": "T2-REV-04",
+      "tier": 2,
+      "feature": "#8 Input Parity & Abort",
+      "name": "Pointer, touch, and Space reach >= 6850 RPM; pointercancel/blur drop throttle to 0",
+      "status": "PASS",
+      "durationMs": 8408
+    },
+    {
+      "id": "T2-REV-05",
+      "tier": 2,
+      "feature": "#8 Spacebar Scope",
+      "name": "Space in CH 01-05 does not rev; Space in CH 06 does not scroll page",
+      "status": "PASS",
+      "durationMs": 2603
+    },
+    {
+      "id": "T2-AST-01",
+      "tier": 2,
+      "feature": "#3 Vite HTML Trap (GLB)",
+      "name": "200-OK text/html response for defender.glb activates fallback model without crashing",
+      "status": "PASS",
+      "durationMs": 608
+    },
+    {
+      "id": "T2-AST-02",
+      "tier": 2,
+      "feature": "#3 Vite HTML Trap (HDR)",
+      "name": "200-OK text/html response for HDR activates fallback environment without crashing",
+      "status": "PASS",
+      "durationMs": 663
+    },
+    {
+      "id": "T2-AST-03",
+      "tier": 2,
+      "feature": "#3 Corrupt GLB Guard",
+      "name": "Corrupt binary GLB falls back cleanly to procedural Defender with console.warn",
+      "status": "PASS",
+      "durationMs": 628
+    },
+    {
+      "id": "T2-AST-04",
+      "tier": 2,
+      "feature": "#6 Vite HTML Trap (Audio)",
+      "name": "200-OK text/html response for WAV falls back to procedural V8 synth cleanly",
+      "status": "PASS",
+      "durationMs": 1108
+    },
+    {
+      "id": "T2-AST-05",
+      "tier": 2,
+      "feature": "#6 Pre-Unlock Silence",
+      "name": "Scrolling CH 01->06 before sound unlock issues zero /assets/audio requests",
+      "status": "PASS",
+      "durationMs": 2069
+    },
+    {
+      "id": "T2-RSP-01",
+      "tier": 2,
+      "feature": "#7 Live Resize",
+      "name": "Resizing desktop -> mobile -> desktop adapts viewport flag and keeps zero overflow",
+      "status": "PASS",
+      "durationMs": 1110
+    },
+    {
+      "id": "T2-RSP-02",
+      "tier": 2,
+      "feature": "#7 Extreme Viewports",
+      "name": "Small mobile 320x568 and wide 1920x1080 render without horizontal overflow",
+      "status": "PASS",
+      "durationMs": 1020
+    },
+    {
+      "id": "T2-RSP-03",
+      "tier": 2,
+      "feature": "#5 High-DPR Cap",
+      "name": "deviceScaleFactor=3 enforces pixelRatio <= 2",
+      "status": "PASS",
+      "durationMs": 677
+    },
+    {
+      "id": "T2-RSP-04",
+      "tier": 2,
+      "feature": "#9 Live Reduced-Motion Toggle",
+      "name": "Toggling prefers-reduced-motion mid-session zeros shake amplitude",
+      "status": "PASS",
+      "durationMs": 1410
+    },
+    {
+      "id": "T2-RSP-05",
+      "tier": 2,
+      "feature": "#8 Idempotent Sound & Modal Esc",
+      "name": "Double-clicking Enable sound and closing licensing modal with Escape leave clean state",
+      "status": "PASS",
+      "durationMs": 1415
+    },
+    {
+      "id": "T2-VFX-01",
+      "tier": 2,
+      "feature": "#2 Desktop vs Mobile FOV",
+      "name": "Mobile framing uses adapted FOV compared to desktop in CH 01 and CH 06",
+      "status": "PASS",
+      "durationMs": 2923
+    },
+    {
+      "id": "T2-VFX-02",
+      "tier": 2,
+      "feature": "#5 Exhaust Glow Range",
+      "name": "exhaustGlow stays low in CH 01-05 and peaks in CH 06 rev",
+      "status": "PASS",
+      "durationMs": 4576
+    },
+    {
+      "id": "T2-VFX-03",
+      "tier": 2,
+      "feature": "#5 Bonnet Rattle Scope",
+      "name": "bonnetRattleActive is false in CH 01-03 and under reducedMotion",
+      "status": "PASS",
+      "durationMs": 2141
+    },
+    {
+      "id": "T2-VFX-04",
+      "tier": 2,
+      "feature": "#5 Shake Amplitude Bounds",
+      "name": "activeShakeAmplitude is 0 in CH 01-03 and > 0 during CH 06 active rev",
+      "status": "PASS",
+      "durationMs": 3872
+    },
+    {
+      "id": "T2-VFX-05",
+      "tier": 2,
+      "feature": "#4 Door Angle Bounds",
+      "name": "doorAngle remains cleanly clamped within [-1.25, 0.05] rad across all chapters",
+      "status": "PASS",
+      "durationMs": 4351
+    },
+    {
+      "id": "T3-CMB-01",
+      "tier": 3,
+      "feature": "#6+#9 Scroll + Audio Mix",
+      "name": "Audio unlock at Hero + CH 03-04 cockpit mix + CH 05-06 exterior mix + reverse",
+      "status": "PASS",
+      "durationMs": 2209
+    },
+    {
+      "id": "T3-CMB-02",
+      "tier": 3,
+      "feature": "#5+#6+#8 CH06 Rev Telemetry + HUD + VFX",
+      "name": "CH 06 rev simultaneously drives RPM readout, SVG arc offset, exhaustGlow, and camera shake",
+      "status": "PASS",
+      "durationMs": 4457
+    },
+    {
+      "id": "T3-CMB-03",
+      "tier": 3,
+      "feature": "#7+#8+#9 Mobile + Touch Rev + FOV",
+      "name": "Mobile 375x812 touch scroll + adapted FOV + touch rev + zero overflow",
+      "status": "PASS",
+      "durationMs": 4980
+    },
+    {
+      "id": "T3-CMB-04",
+      "tier": 3,
+      "feature": "#5+#7+#9 Reduced Motion Full Flow",
+      "name": "Reduced-motion full scroll + CH 04 idle + CH 06 rev without shake/rattle",
+      "status": "PASS",
+      "durationMs": 4713
+    },
+    {
+      "id": "T3-CMB-05",
+      "tier": 3,
+      "feature": "#8+#9 Rail Click-to-Scroll Sync",
+      "name": "Progress rail clicks sync Lenis, ScrollTrigger, 3D rig, and HUD",
+      "status": "PASS",
+      "durationMs": 2856
+    },
+    {
+      "id": "T3-CMB-06",
+      "tier": 3,
+      "feature": "#4+#6+#9 Ignition + Reverse Stop",
+      "name": "CH 04 ignition engages idle & gauge; reversing to CH 02 stops engine & opens door",
+      "status": "PASS",
+      "durationMs": 2292
+    },
+    {
+      "id": "T3-CMB-07",
+      "tier": 3,
+      "feature": "#4+#9 Door Open + Light + Reverse Close",
+      "name": "CH 02 door opens with interior light; reverse scroll to CH 01 closes door",
+      "status": "PASS",
+      "durationMs": 1546
+    },
+    {
+      "id": "T3-CMB-08",
+      "tier": 3,
+      "feature": "#3+#4+#5 Fallback Full Scroll + Teardown",
+      "name": "Fallback Defender + studio mist survive full forward/reverse scroll and clean close",
+      "status": "PASS",
+      "durationMs": 1744
+    },
+    {
+      "id": "T3-CMB-09",
+      "tier": 3,
+      "feature": "#6+#8 Late Audio Unlock + Space Rev + Modal",
+      "name": "Silent scroll to CH 06 -> late sound unlock -> Space rev -> licensing modal",
+      "status": "PASS",
+      "durationMs": 4391
+    },
+    {
+      "id": "T4-SCN-01",
+      "tier": 4,
+      "feature": "#10 Full Desktop Journey",
+      "name": "Complete desktop visitor journey CH 01->06->rev->modal->reverse CH 01",
+      "status": "PASS",
+      "durationMs": 9702
+    },
+    {
+      "id": "T4-SCN-02",
+      "tier": 4,
+      "feature": "#11 Rubric Screenshot Suite",
+      "name": "Capture 10 deterministic PNG screenshots across Hero, CH 01-06, active rev, and mobile",
+      "status": "PASS",
+      "durationMs": 11295,
+      "metrics": {
+        "screenshotCount": 10
+      }
+    },
+    {
+      "id": "T4-SCN-03",
+      "tier": 4,
+      "feature": "#6 Silent Explorer",
+      "name": "Silent visitor scrolls CH 01->06 with 0 audio requests, unlocks at CH 06, Space revs",
+      "status": "PASS",
+      "durationMs": 4388
+    },
+    {
+      "id": "T4-SCN-04",
+      "tier": 4,
+      "feature": "#7+#8 Mobile Visitor Journey",
+      "name": "Mobile 390x844 visitor unlocks sound, navigates CH 01->06, touch-revs without overflow",
+      "status": "PASS",
+      "durationMs": 4042
+    },
+    {
+      "id": "T4-SCN-05",
+      "tier": 4,
+      "feature": "#7+#8 Keyboard Accessibility",
+      "name": "Reduced-motion keyboard-only journey across rail, sound, modal, and Space rev",
+      "status": "PASS",
+      "durationMs": 4573
+    },
+    {
+      "id": "T4-SCN-06",
+      "tier": 4,
+      "feature": "Lighthouse Mock",
+      "name": "Lighthouse threshold & report serialization verified",
+      "status": "PASS",
+      "durationMs": 0,
+      "metrics": {
+        "performance": 0.94,
+        "cls": 0.004
+      }
+    }
+  ],
+  "lighthouse": {
+    "status": "PASS",
+    "mock": true,
+    "performance": 0.94,
+    "accessibility": 0.98,
+    "bestPractices": 0.96,
+    "cls": 0.004,
+    "lcpMs": 1320,
+    "tbtMs": 45,
+    "fcpMs": 640,
+    "reportJsonPath": "tests/artifacts/smoke/lighthouse-report.json",
+    "reportHtmlPath": "tests/artifacts/smoke/lighthouse-report.html"
+  },
+  "screenshots": [
+    {
+      "name": "00-hero",
+      "chapter": "01",
+      "viewport": "1440x900",
+      "path": "tests/artifacts/smoke/screenshots/00-hero.png",
+      "bytes": 221456
+    },
+    {
+      "name": "01-ch01-approach",
+      "chapter": "01",
+      "viewport": "1440x900",
+      "path": "tests/artifacts/smoke/screenshots/01-ch01-approach.png",
+      "bytes": 272005
+    },
+    {
+      "name": "02-ch02-door-opens",
+      "chapter": "02",
+      "viewport": "1440x900",
+      "path": "tests/artifacts/smoke/screenshots/02-ch02-door-opens.png",
+      "bytes": 286734
+    },
+    {
+      "name": "03-ch03-seated",
+      "chapter": "03",
+      "viewport": "1440x900",
+      "path": "tests/artifacts/smoke/screenshots/03-ch03-seated.png",
+      "bytes": 292667
+    },
+    {
+      "name": "04-ch04-engine-starts",
+      "chapter": "04",
+      "viewport": "1440x900",
+      "path": "tests/artifacts/smoke/screenshots/04-ch04-engine-starts.png",
+      "bytes": 296927
+    },
+    {
+      "name": "05-ch05-get-out",
+      "chapter": "05",
+      "viewport": "1440x900",
+      "path": "tests/artifacts/smoke/screenshots/05-ch05-get-out.png",
+      "bytes": 291820
+    },
+    {
+      "name": "06-ch06-rear-view",
+      "chapter": "06",
+      "viewport": "1440x900",
+      "path": "tests/artifacts/smoke/screenshots/06-ch06-rear-view.png",
+      "bytes": 301642
+    },
+    {
+      "name": "07-ch06-rev-active",
+      "chapter": "06",
+      "viewport": "1440x900",
+      "path": "tests/artifacts/smoke/screenshots/07-ch06-rev-active.png",
+      "bytes": 311189
+    },
+    {
+      "name": "08-mobile-hero",
+      "chapter": "01",
+      "viewport": "375x812",
+      "path": "tests/artifacts/smoke/screenshots/08-mobile-hero.png",
+      "bytes": 93933
+    },
+    {
+      "name": "09-mobile-ch06",
+      "chapter": "06",
+      "viewport": "375x812",
+      "path": "tests/artifacts/smoke/screenshots/09-mobile-ch06.png",
+      "bytes": 115326
+    }
+  ],
+  "consoleAudit": {
+    "pageErrors": [],
+    "consoleErrors": [],
+    "fallbackWarningsCount": 190
+  }
+}
