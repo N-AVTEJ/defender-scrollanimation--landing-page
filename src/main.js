@@ -130,9 +130,9 @@ async function bootApp() {
   let lastTickSec = performance.now() * 0.001;
   let disposed = false;
 
-  function onTick(timeSec) {
+  function onTick() {
     if (disposed) return;
-    const nowSec = Number.isFinite(timeSec) ? timeSec : performance.now() * 0.001;
+    const nowSec = performance.now() * 0.001;
     const rawDt = Math.min(1.0, Math.max(0.001, nowSec - lastTickSec));
     const dt = Math.min(0.05, rawDt);
     lastTickSec = nowSec;

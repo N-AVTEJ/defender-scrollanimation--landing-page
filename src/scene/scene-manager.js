@@ -203,6 +203,13 @@ export async function createSceneManager(canvas, config, loadingManager = null, 
     powerPreference: 'high-performance',
     stencil: false,
   });
+  const gl = renderer.getContext();
+  const dbgExt = gl?.getExtension?.('WEBGL_debug_renderer_info');
+  const glRendererStr = dbgExt ? String(gl.getParameter(dbgExt.UNMASKED_RENDERER_WEBGL) || '') : '';
+  const isSoftwareGL = /swiftshader|llvmpipe|software/i.test(glRendererStr);
+  if (isSoftwareGL) {
+    viewport.pixelRatio = 1;
+  }
   renderer.setPixelRatio(viewport.pixelRatio);
   renderer.setSize(viewport.width, viewport.height, false);
   renderer.shadowMap.enabled = true;
