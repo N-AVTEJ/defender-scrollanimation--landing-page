@@ -18,6 +18,7 @@ import {
   MathUtils,
   Mesh,
   MeshBasicMaterial,
+  MeshLambertMaterial,
   MeshStandardMaterial,
   PCFShadowMap,
   PerspectiveCamera,
@@ -34,7 +35,6 @@ import { HDRLoader } from 'three/addons/loaders/HDRLoader.js';
 import { probeHdrAsset } from './asset-probe.js';
 import { loadDefender } from './defender-loader.js';
 import { createEffects } from './effects.js';
-import { createPostprocessing } from './postprocessing.js';
 
 const MAX_PIXEL_RATIO = 2;
 
@@ -212,7 +212,7 @@ export async function createSceneManager(canvas, config, loadingManager = null, 
   }
   renderer.setPixelRatio(viewport.pixelRatio);
   renderer.setSize(viewport.width, viewport.height, false);
-  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.enabled = !isSoftwareGL;
   renderer.shadowMap.type = PCFShadowMap;
 
   const scene = new Scene();
@@ -231,15 +231,15 @@ export async function createSceneManager(canvas, config, loadingManager = null, 
   camera.lookAt(...kf0.lookAt);
 
   // Environment via HDRLoader + PMREMGenerator (with studio-mist fallback)
-  const pmremGenerator = new PMREMGenerator(renderer);
-  pmremGenerator.compileEquirectangularShader();
-
   let envRT = null;
   let isFallbackEnv = false;
+  let pmremGenerator = null;
   const hdrUrl = config?.ASSET_PATHS?.hdrDefault ?? '/assets/hdr/studio_mist.hdr';
   const hdrProbe = await probeHdrAsset(hdrUrl, loadingManager);
 
   if (hdrProbe.ok) {
+    pmremGenerator = new PMREMGenerator(renderer);
+    pmremGenerator.compileEquirectangularShader();
     try {
       const hdrLoader = new HDRLoader(loadingManager || undefined);
       const tex = hdrLoader.createDataTexture(hdrProbe.buffer);
@@ -259,23 +259,31 @@ export async function createSceneManager(canvas, config, loadingManager = null, 
     console.warn(
       `[scene-manager] HDR environment missing or invalid (${hdrProbe.reason}); using procedural studio-mist PMREM fallback.`
     );
-    envRT = buildFallbackStudioPMREM(pmremGenerator, config);
+    if (!isSoftwareGL) {
+      pmremGenerator = new PMREMGenerator(renderer);
+      pmremGenerator.compileEquirectangularShader();
+      envRT = buildFallbackStudioPMREM(pmremGenerator, config);
+    }
     isFallbackEnv = true;
   }
 
-  scene.environment = envRT.texture;
-  scene.environmentIntensity = 0.95;
+  if (envRT) {
+    scene.environment = envRT.texture;
+    scene.environmentIntensity = 0.95;
+  }
   pmremGenerator.dispose();
 
   // Matte wet-slate ground plane & procedural soft contact shadow
   const groundY = config?.VEHICLE_DIMENSIONS?.groundY ?? 0.0;
   const groundGeo = new PlaneGeometry(90, 90);
-  const groundMat = new MeshStandardMaterial({
-    color: '#10120f',
-    roughness: 0.72,
-    metalness: 0.15,
-    envMapIntensity: 0.55,
-  });
+  const groundMat = isSoftwareGL
+    ? new MeshLambertMaterial({ color: '#10120f' })
+    : new MeshStandardMaterial({
+        color: '#10120f',
+        roughness: 0.72,
+        metalness: 0.15,
+        envMapIntensity: 0.55,
+      });
   const groundMesh = new Mesh(groundGeo, groundMat);
   groundMesh.name = 'ground_plane';
   groundMesh.rotation.x = -Math.PI / 2;
@@ -330,6 +338,7 @@ export async function createSceneManager(canvas, config, loadingManager = null, 
     lCfg?.fillLight?.intensity ?? 0.75
   );
   fillLight.position.set(...(lCfg?.fillLight?.pos ?? [-6.0, 3.8, -3.2]));
+  if (isSoftwareGL) fillLight.visible = false;
   scene.add(fillLight);
 
   const rimLight = new DirectionalLight(
@@ -342,6 +351,7 @@ export async function createSceneManager(canvas, config, loadingManager = null, 
   const interiorDomeMax = lCfg?.interiorDome?.maxIntensity ?? 2.2;
   const interiorDome = new PointLight(lCfg?.interiorDome?.color ?? '#ffb878', 0, 4.0, 2);
   interiorDome.position.set(...(lCfg?.interiorDome?.pos ?? [0.0, 1.72, 0.15]));
+  if (isSoftwareGL) interiorDome.visible = false;
   scene.add(interiorDome);
 
   const headlightMax = lCfg?.headlights?.maxIntensity ?? 18;
@@ -351,25 +361,67 @@ export async function createSceneManager(canvas, config, loadingManager = null, 
   const leftHeadlight = new SpotLight(headlightColor, headlightMax * initialHl, 28, 0.42, 0.65, 1.6);
   leftHeadlight.position.set(0.72, 0.88, 2.28);
   leftHeadlight.target.position.set(0.72, 0.25, 14);
+  if (isSoftwareGL) leftHeadlight.visible = false;
   scene.add(leftHeadlight, leftHeadlight.target);
 
   const rightHeadlight = new SpotLight(headlightColor, headlightMax * initialHl, 28, 0.42, 0.65, 1.6);
   rightHeadlight.position.set(-0.72, 0.88, 2.28);
   rightHeadlight.target.position.set(-0.72, 0.25, 14);
+  if (isSoftwareGL) rightHeadlight.visible = false;
   scene.add(rightHeadlight, rightHeadlight.target);
 
   // Load Defender vehicle (GLB or procedural fallback)
   const defender = await loadDefender(loadingManager, renderer);
+  if (isSoftwareGL) {
+    const swMatCache = new Map();
+    const toLambert = (mat) => {
+      if (!mat || (!mat.isMeshStandardMaterial && !mat.isMeshPhysicalMaterial)) return mat;
+      if (swMatCache.has(mat)) return swMatCache.get(mat);
+      const lm = new MeshLambertMaterial({
+        color: mat.color,
+        emissive: mat.emissive,
+        emissiveIntensity: mat.emissiveIntensity,
+        transparent: mat.transparent,
+        opacity: mat.opacity,
+        side: mat.side,
+      });
+      swMatCache.set(mat, lm);
+      mat.dispose();
+      return lm;
+    };
+    defender.root.traverse((obj) => {
+      if (obj.isMesh && obj.material) {
+        obj.material = Array.isArray(obj.material)
+          ? obj.material.map(toLambert)
+          : toLambert(obj.material);
+      }
+    });
+  }
   scene.add(defender.root);
 
-  // Effects & Postprocessing
+  // Effects & Postprocessing (skip heavy multi-pass composer on CPU SwiftShader)
   const effects = createEffects({ scene, nodes: defender.nodes, config });
-  const postprocessing = createPostprocessing(renderer, scene, camera, config?.LIGHTING_CONFIG);
+  let postprocessing;
+  if (isSoftwareGL) {
+    postprocessing = {
+      setSize() {},
+      render() {
+        renderer.render(scene, camera);
+      },
+      dispose() {},
+    };
+  } else {
+    const { createPostprocessing } = await import('./postprocessing.js');
+    postprocessing = createPostprocessing(renderer, scene, camera, config?.LIGHTING_CONFIG);
+  }
 
   const lookTarget = new Vector3(...kf0.lookAt);
   let activeShakeAmplitude = 0;
   let exhaustGlow = 0;
   let bonnetRattleActive = false;
+  let lastSwRenderMs = -1000;
+  let swNeedsRender = true;
+  let swLastCamHash = '';
   let disposed = false;
 
   isReady = true;
@@ -441,6 +493,14 @@ export async function createSceneManager(canvas, config, loadingManager = null, 
         rigLook[2] + vfx.lookAtOffset.z
       );
       camera.lookAt(lookTarget);
+
+      if (isSoftwareGL) {
+        const hash = `${camera.position.x.toFixed(2)},${camera.position.y.toFixed(2)},${camera.position.z.toFixed(2)},${doorAngle.toFixed(2)},${hlLevel.toFixed(2)},${exhaustGlow.toFixed(2)}`;
+        if (hash !== swLastCamHash) {
+          swLastCamHash = hash;
+          swNeedsRender = true;
+        }
+      }
     },
 
     /**
@@ -461,7 +521,16 @@ export async function createSceneManager(canvas, config, loadingManager = null, 
      */
     render() {
       if (disposed) return;
-      postprocessing.render(lastTime, lastReducedMotion);
+      if (isSoftwareGL) {
+        if (!swNeedsRender) return;
+        const now = performance.now();
+        if (now - lastSwRenderMs < 150) return;
+        lastSwRenderMs = now;
+        swNeedsRender = false;
+        renderer.render(scene, camera);
+      } else {
+        postprocessing.render(lastTime, lastReducedMotion);
+      }
     },
 
     /**
@@ -476,6 +545,8 @@ export async function createSceneManager(canvas, config, loadingManager = null, 
      * Returns read-only scene diagnostics matching TEST_INFRA.md § 4.2.
      */
     getDebugState() {
+      const liveW = Math.max(1, canvas.clientWidth || window.innerWidth || viewport.width);
+      const liveH = Math.max(1, canvas.clientHeight || window.innerHeight || viewport.height);
       return {
         isReady,
         isFallbackModel: Boolean(defender?.isFallback),
@@ -483,9 +554,9 @@ export async function createSceneManager(canvas, config, loadingManager = null, 
         pixelRatio: viewport.pixelRatio,
         maxPixelRatio: MAX_PIXEL_RATIO,
         viewport: {
-          width: viewport.width,
-          height: viewport.height,
-          isMobile: viewport.isMobile,
+          width: liveW,
+          height: liveH,
+          isMobile: liveW <= 768,
         },
         activeShakeAmplitude,
         exhaustGlow,
@@ -513,6 +584,7 @@ export async function createSceneManager(canvas, config, loadingManager = null, 
       contactShadowMat.dispose();
       contactShadowTex.dispose();
       envRT?.dispose();
+      pmremGenerator?.dispose();
 
       scene.clear();
       renderer.dispose();

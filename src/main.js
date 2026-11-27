@@ -164,10 +164,7 @@ async function bootApp() {
 
     sceneManager.update(dt, rigState, fxState);
     sceneManager.render();
-    soundControl.sync();
   }
-
-  gsap.ticker.add(onTick);
 
   function onResize() {
     sceneManager.resize();
@@ -196,6 +193,8 @@ async function bootApp() {
   sceneManager.render();
   canvas?.setAttribute('data-ready', 'true');
   loaderUI.complete();
+
+  gsap.ticker.add(onTick);
 
   function dispose() {
     if (disposed) return;

@@ -667,7 +667,7 @@ export class EngineAudio {
       // Trigger armed tip-in stumble as RPM crosses into ~1500 rpm band
       if (this._stumbleArmed && this._rpm >= 1400 && this._throttle > 0.35) {
         this._stumbleArmed = false;
-        this._stumbleTimer = 0.13;
+        this._stumbleTimer = 0.06;
       }
 
       // Trigger 80ms fuel-cut limiter bounce at 7180+ rpm

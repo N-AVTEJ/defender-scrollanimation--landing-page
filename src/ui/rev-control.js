@@ -158,7 +158,9 @@ export function createRevControl(
     if (arcEl) {
       const ratio = Math.max(0, Math.min(1, safeRpm / redlineRPM));
       const offset = circumference * (1 - ratio);
-      arcEl.style.strokeDashoffset = offset.toFixed(2);
+      const offsetStr = offset.toFixed(2);
+      arcEl.setAttribute('stroke-dashoffset', offsetStr);
+      arcEl.style.strokeDashoffset = offsetStr;
     }
   }
 

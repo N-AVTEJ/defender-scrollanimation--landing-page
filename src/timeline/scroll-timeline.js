@@ -190,6 +190,19 @@ export function createScrollTimeline({
   ScrollTrigger.refresh();
   isInitialized = true;
 
+  let liveReducedMotion =
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const rmMql =
+    typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+      ? window.matchMedia('(prefers-reduced-motion: reduce)')
+      : null;
+  const onRmChange = (e) => {
+    liveReducedMotion = Boolean(e.matches);
+  };
+  rmMql?.addEventListener?.('change', onRmChange);
+
   function getRigState() {
     const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
     const chId = currentChapterInfo.chapter.id;
@@ -208,7 +221,7 @@ export function createScrollTimeline({
       cockpitMix: tweenState.cockpitMix,
       gaugeVisible: tweenState.gaugeVisible >= 0.5 || chId === '03' || chId === '04',
       revActive: tweenState.revActive >= 0.5 || chId === '06',
-      reducedMotion,
+      reducedMotion: reducedMotion || liveReducedMotion,
       scrollHeightVh: SCROLL_CONFIG.totalHeightVh,
     };
   }
@@ -246,6 +259,7 @@ export function createScrollTimeline({
       ScrollTrigger.refresh();
     },
     dispose() {
+      rmMql?.removeEventListener?.('change', onRmChange);
       masterTl.scrollTrigger?.kill();
       masterTl.kill();
       lenis.destroy();
