@@ -37,6 +37,74 @@ async function importConfigFresh(configPath) {
   return import(url);
 }
 
+function extractNodeMapBody(content) {
+  let stripped = '';
+  let i = 0;
+  while (i < content.length) {
+    const ch = content[i];
+    const next = content[i + 1];
+    if (ch === '/' && next === '/') {
+      while (i < content.length && content[i] !== '\n') i++;
+      continue;
+    }
+    if (ch === '/' && next === '*') {
+      i += 2;
+      while (i < content.length && !(content[i] === '*' && content[i + 1] === '/')) i++;
+      i += 2;
+      continue;
+    }
+    if (ch === '\'' || ch === '"' || ch === '`') {
+      const quote = ch;
+      stripped += ch;
+      i++;
+      while (i < content.length) {
+        const sc = content[i];
+        stripped += sc;
+        if (sc === '\\' && i + 1 < content.length) {
+          i++;
+          stripped += content[i];
+        } else if (sc === quote) {
+          i++;
+          break;
+        }
+        i++;
+      }
+      continue;
+    }
+    stripped += ch;
+    i++;
+  }
+
+  const m = /\bNODE_MAP\s*=\s*(?:[A-Za-z_$][\w$.]*\s*\(\s*)?\{/.exec(stripped);
+  if (!m) return null;
+  const openIdx = stripped.indexOf('{', m.index);
+  let depth = 0;
+  for (let j = openIdx; j < stripped.length; j++) {
+    const c = stripped[j];
+    if (c === '\'' || c === '"' || c === '`') {
+      const quote = c;
+      j++;
+      while (j < stripped.length) {
+        if (stripped[j] === '\\') {
+          j += 2;
+          continue;
+        }
+        if (stripped[j] === quote) break;
+        j++;
+      }
+      continue;
+    }
+    if (c === '{') depth++;
+    else if (c === '}') {
+      depth--;
+      if (depth === 0) {
+        return stripped.slice(openIdx, j + 1);
+      }
+    }
+  }
+  return null;
+}
+
 function runNpmBuild(rootDir) {
   if (process.env.npm_execpath && fs.existsSync(process.env.npm_execpath)) {
     return spawnSync(process.execPath, [process.env.npm_execpath, 'run', 'build'], {
@@ -289,8 +357,15 @@ export async function runStaticChecks(rootDir = process.cwd(), { skipBuild = fal
       assert(nodeMapLineIdx !== -1, 'NODE_MAP declaration missing in defender-loader.js');
       assert(nodeMapLineIdx < 60, `NODE_MAP must be declared near top of defender-loader.js (found at line ${nodeMapLineIdx + 1})`);
 
+      const nodeMapSlice = extractNodeMapBody(content);
+      assert(nodeMapSlice, 'NODE_MAP object literal missing or unclosed in defender-loader.js');
+
       for (const requiredKey of ['body', 'door_driver', 'steering_wheel', 'seat', 'wheels', 'interior', 'exhaust']) {
-        assert(new RegExp(`\\b${requiredKey}\\b`).test(content), `NODE_MAP missing required node key: ${requiredKey}`);
+        assert(
+          new RegExp(`(?:^|[{,\\s])${requiredKey}\\s*:`).test(nodeMapSlice) ||
+            new RegExp(`["']${requiredKey}["']\\s*:`).test(nodeMapSlice),
+          `NODE_MAP missing required node key: ${requiredKey}`
+        );
       }
     },
   });

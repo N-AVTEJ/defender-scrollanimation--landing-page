@@ -1,0 +1,604 @@
+/**
+ * Editorial HUD, Hero, Chapter Overlay, Progress Rail, Gauge, Magnetic Rev CTA & Modal
+ * Only transform and opacity are animated for 60fps compositing.
+ */
+
+/* ==========================================================================
+   Hero Lockup
+   ========================================================================== */
+.hero-root {
+  position: absolute;
+  top: calc(var(--letterbox-h) + clamp(24px, 6vh, 64px));
+  left: clamp(16px, 4vw, 48px);
+  max-width: min(82vw, 760px);
+  transition: opacity 0.45s var(--ease-editorial), transform 0.55s var(--ease-editorial);
+}
+
+.hero-root[data-visible='false'] {
+  opacity: 0;
+  transform: translate3d(0, -14px, 0);
+  pointer-events: none;
+}
+
+.hero-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--accent-signal);
+  margin: 0 0 10px 0;
+}
+
+.hero-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(3.5rem, 11vw, 8.5rem);
+  line-height: 0.86;
+  letter-spacing: -0.025em;
+  text-transform: uppercase;
+  color: var(--text-bone);
+}
+
+.hero-letter {
+  display: inline-block;
+  opacity: 0;
+  transform: translate3d(0, 18px, 0);
+  transition: opacity 0.5s var(--ease-editorial), transform 0.6s var(--ease-editorial);
+}
+
+.hero-letter.is-revealed {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+.hero-letter-space {
+  width: 0.22em;
+}
+
+.hero-hairline {
+  width: clamp(120px, 22vw, 240px);
+  height: 1px;
+  background-color: var(--hairline-strong);
+  margin: 16px 0 14px 0;
+}
+
+.scroll-cue {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--text-bone);
+}
+
+.scroll-cue-line {
+  width: 28px;
+  height: 1px;
+  background-color: var(--accent-signal);
+  transform-origin: left center;
+  animation: scrollCuePulse 2.2s ease-in-out infinite;
+}
+
+@keyframes scrollCuePulse {
+  0%,
+  100% {
+    transform: scaleX(0.45);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+/* ==========================================================================
+   Asymmetric Chapter Overlay (CH 01–06)
+   ========================================================================== */
+.chapter-overlay {
+  position: absolute;
+  bottom: calc(var(--letterbox-h) + clamp(20px, 4.5vh, 48px));
+  left: clamp(16px, 4vw, 48px);
+  max-width: min(76vw, 440px);
+  transition: opacity 0.35s var(--ease-editorial), transform 0.4s var(--ease-editorial);
+}
+
+.chapter-overlay.is-transitioning {
+  opacity: 0.25;
+  transform: translate3d(0, 6px, 0);
+}
+
+.chapter-header {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+.chapter-numeral {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2.6rem, 5.2vw, 4.4rem);
+  line-height: 0.85;
+  color: var(--accent-signal);
+  letter-spacing: -0.02em;
+}
+
+.chapter-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.5rem, 3vw, 2.35rem);
+  line-height: 0.95;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-bone);
+}
+
+.chapter-rule {
+  width: 100%;
+  height: 1px;
+  background-color: var(--hairline);
+  margin: 10px 0 12px 0;
+}
+
+.chapter-copy {
+  margin: 0 0 12px 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1rem, 1.55vw, 1.25rem);
+  line-height: 1.35;
+  color: var(--text-bone);
+}
+
+.chapter-spec {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   Right-Hand Progress Rail (01–06)
+   ========================================================================== */
+.progress-rail {
+  position: absolute;
+  right: clamp(12px, 2.5vw, 32px);
+  top: 50%;
+  transform: translate3d(0, -50%, 0);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  pointer-events: auto;
+}
+
+.rail-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 4px;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.18em;
+  color: var(--text-muted);
+  transition: color 0.25s ease, transform 0.25s ease;
+}
+
+.rail-btn:hover {
+  color: var(--text-bone);
+}
+
+.rail-btn[aria-current='step'] {
+  color: var(--text-bone);
+}
+
+.rail-tick {
+  width: 16px;
+  height: 1px;
+  background-color: var(--hairline-strong);
+  transform-origin: right center;
+  transition: transform 0.25s var(--ease-editorial), background-color 0.25s ease;
+}
+
+.rail-btn[aria-current='step'] .rail-tick {
+  background-color: var(--accent-signal);
+  transform: scaleX(1.75);
+}
+
+/* ==========================================================================
+   Sound Control (Top Letterbox Bar)
+   ========================================================================== */
+.sound-btn {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border: 1px solid var(--hairline-strong);
+  background-color: rgba(20, 21, 18, 0.86);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-bone);
+  transition: border-color 0.25s ease, color 0.25s ease, transform 0.2s ease;
+}
+
+.sound-btn:hover {
+  border-color: var(--accent-signal);
+}
+
+.sound-btn[data-unlocked='true'] {
+  border-color: var(--hairline);
+}
+
+.sound-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--accent-signal);
+  opacity: 0.45;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.sound-btn[data-unlocked='true'][data-muted='false'] .sound-dot {
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+/* ==========================================================================
+   Defender Cockpit RPM Gauge (CH 03–04)
+   ========================================================================== */
+.rpm-gauge {
+  position: absolute;
+  right: clamp(44px, 7vw, 108px);
+  bottom: calc(var(--letterbox-h) + clamp(20px, 4.5vh, 48px));
+  width: clamp(168px, 20vw, 224px);
+  padding: 14px 16px;
+  background: rgba(11, 12, 10, 0.78);
+  border: 1px solid var(--hairline);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+  transition: opacity 0.35s var(--ease-editorial), transform 0.35s var(--ease-editorial);
+  pointer-events: none;
+}
+
+.rpm-gauge[data-visible='true'] {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+.rpm-gauge-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.rpm-needle {
+  transform-origin: 90px 90px;
+  transform: rotate(-125deg);
+  transition: transform 0.06s linear;
+}
+
+.rpm-gauge-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px solid var(--hairline);
+  font-family: var(--font-mono);
+}
+
+.rpm-gauge-value {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-bone);
+  letter-spacing: 0.08em;
+}
+
+.rpm-gauge-speed {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  letter-spacing: 0.14em;
+}
+
+/* ==========================================================================
+   Magnetic "REV IT TO 7200 RPM" Control (CH 06)
+   ========================================================================== */
+.rev-panel {
+  position: absolute;
+  right: clamp(44px, 7vw, 108px);
+  bottom: calc(var(--letterbox-h) + clamp(24px, 5vh, 52px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  opacity: 0;
+  transform: translate3d(0, 16px, 0);
+  pointer-events: none;
+  transition: opacity 0.38s var(--ease-editorial), transform 0.38s var(--ease-editorial);
+}
+
+.rev-panel[data-visible='true'] {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  pointer-events: auto;
+}
+
+.rev-readout-wrap {
+  text-align: center;
+}
+
+.rev-rpm-readout {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2.4rem, 4.8vw, 3.8rem);
+  line-height: 0.9;
+  color: var(--text-bone);
+  letter-spacing: 0.02em;
+}
+
+.rev-rpm-unit {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--accent-signal);
+  margin-top: 4px;
+}
+
+.rev-button-wrap {
+  position: relative;
+  width: 148px;
+  height: 148px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rev-arc-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  pointer-events: none;
+}
+
+.rev-button {
+  position: relative;
+  width: 122px;
+  height: 122px;
+  border-radius: 50%;
+  border: 1px solid rgba(224, 84, 31, 0.55);
+  background: rgba(20, 21, 18, 0.9);
+  color: var(--text-bone);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1.35;
+  padding: 12px;
+  text-align: center;
+  box-shadow: 0 0 28px rgba(224, 84, 31, 0.18);
+  user-select: none;
+  touch-action: none;
+  transition: transform 0.16s var(--ease-editorial), border-color 0.2s ease,
+    box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.rev-button:hover {
+  border-color: var(--accent-signal);
+  box-shadow: 0 0 36px rgba(224, 84, 31, 0.34);
+}
+
+.rev-button[data-pressed='true'],
+.rev-button:active {
+  transform: scale(0.94);
+  background-color: rgba(224, 84, 31, 0.22);
+  border-color: var(--accent-signal);
+  box-shadow: 0 0 46px rgba(224, 84, 31, 0.52);
+}
+
+.rev-hint {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   Footer & Licensing Modal
+   ========================================================================== */
+.footer-bar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.licensing-trigger {
+  color: var(--text-bone);
+  border-bottom: 1px solid var(--hairline-strong);
+  padding-bottom: 1px;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.licensing-trigger:hover {
+  color: var(--accent-signal);
+  border-color: var(--accent-signal);
+}
+
+.licensing-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(11, 12, 10, 0.84);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.licensing-modal[data-open='true'] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.licensing-card {
+  width: min(540px, 94vw);
+  background: var(--bg-surface);
+  border: 1px solid var(--hairline-strong);
+  padding: 28px;
+  color: var(--text-bone);
+}
+
+.licensing-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.licensing-card-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.licensing-close {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  border: 1px solid var(--hairline-strong);
+}
+
+.licensing-close:hover {
+  border-color: var(--accent-signal);
+  color: var(--accent-signal);
+}
+
+.licensing-body {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+}
+
+.licensing-body p {
+  margin: 0 0 10px 0;
+}
+
+/* ==========================================================================
+   Custom Crosshair Cursor
+   ========================================================================== */
+.custom-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 24px;
+  height: 24px;
+  margin-left: -12px;
+  margin-top: -12px;
+  border: 1px solid rgba(232, 226, 211, 0.55);
+  border-radius: 50%;
+  z-index: 950;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate3d(-100px, -100px, 0);
+  transition: opacity 0.2s ease, border-color 0.2s ease;
+}
+
+.custom-cursor::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  margin: -2px 0 0 -2px;
+  background-color: var(--accent-signal);
+  border-radius: 50%;
+}
+
+.custom-cursor[data-active='true'] {
+  opacity: 1;
+}
+
+.custom-cursor[data-hover='true'] {
+  border-color: var(--accent-signal);
+}
+
+@media (pointer: coarse), (hover: none) {
+  .custom-cursor {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   Mobile Responsive Layout
+   ========================================================================== */
+@media (max-width: 768px) {
+  .chapter-overlay {
+    max-width: calc(100vw - 74px);
+    bottom: calc(var(--letterbox-h) + 16px);
+  }
+
+  .progress-rail {
+    right: 10px;
+    gap: 8px;
+  }
+
+  .rpm-gauge {
+    right: 44px;
+    top: calc(var(--letterbox-h) + 14px);
+    bottom: auto;
+    width: 152px;
+    padding: 10px 12px;
+  }
+
+  .rev-panel {
+    right: 44px;
+    top: calc(var(--letterbox-h) + 18px);
+    bottom: auto;
+  }
+
+  .rev-button-wrap {
+    width: 118px;
+    height: 118px;
+  }
+
+  .rev-button {
+    width: 98px;
+    height: 98px;
+    font-size: 0.56rem;
+  }
+
+  .footer-credits {
+    display: none;
+  }
+}

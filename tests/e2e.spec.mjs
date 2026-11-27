@@ -168,12 +168,15 @@ export async function runE2ESuite({
     const cx = box.x + box.width / 2;
     const cy = box.y + box.height / 2;
 
+    let cdp = null;
     if (method === 'pointer') {
       await page.mouse.move(cx, cy);
       await page.mouse.down();
     } else if (method === 'touch') {
-      await revBtn.evaluate((el) => {
-        el.dispatchEvent(new TouchEvent('touchstart', { bubbles: true, cancelable: true }));
+      cdp = await page.context().newCDPSession(page);
+      await cdp.send('Input.dispatchTouchEvent', {
+        type: 'touchStart',
+        touchPoints: [{ x: Math.round(cx), y: Math.round(cy), id: 1 }],
       });
     } else if (method === 'space') {
       await page.keyboard.down('Space');
@@ -193,10 +196,15 @@ export async function runE2ESuite({
     } finally {
       if (method === 'pointer') {
         await page.mouse.up();
-      } else if (method === 'touch') {
-        await revBtn.evaluate((el) => {
-          el.dispatchEvent(new TouchEvent('touchend', { bubbles: true, cancelable: true }));
-        });
+      } else if (method === 'touch' && cdp) {
+        try {
+          await cdp.send('Input.dispatchTouchEvent', {
+            type: 'touchEnd',
+            touchPoints: [],
+          });
+        } finally {
+          await cdp.detach().catch(() => {});
+        }
       } else if (method === 'space') {
         await page.keyboard.up('Space');
       }
@@ -295,7 +303,36 @@ export async function runE2ESuite({
       withPage({}, async (page) => {
         const canvas = getWebGLCanvas(page);
         await canvas.waitFor({ state: 'visible' });
-        const png = await canvas.screenshot();
+        let png;
+        await page.evaluate(() => {
+          const target = document.querySelector('canvas[data-testid="webgl-canvas"]') || document.querySelector('canvas');
+          if (target) {
+            let cur = target;
+            while (cur && cur.nodeType === 1) {
+              cur.setAttribute('data-tw-canvas-keep', 'true');
+              cur = cur.parentElement;
+            }
+          }
+          const style = document.createElement('style');
+          style.id = '__tw_isolate_canvas__';
+          style.textContent = [
+            'body *:not([data-tw-canvas-keep="true"]) { visibility: hidden !important; opacity: 0 !important; }',
+            '[data-tw-canvas-keep="true"]::before, [data-tw-canvas-keep="true"]::after { content: none !important; display: none !important; }',
+            'canvas[data-tw-canvas-keep="true"] { visibility: visible !important; opacity: 1 !important; }',
+          ].join('\n');
+          document.head.appendChild(style);
+          return new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        });
+        try {
+          png = await canvas.screenshot();
+        } finally {
+          await page.evaluate(() => {
+            document.getElementById('__tw_isolate_canvas__')?.remove();
+            for (const el of document.querySelectorAll('[data-tw-canvas-keep]')) {
+              el.removeAttribute('data-tw-canvas-keep');
+            }
+          });
+        }
         const stats = analyzePngPixelVariance(png);
         assert(stats.nonBlank, `Canvas appears blank/flat: ${JSON.stringify(stats)}`);
         return { metrics: stats };
@@ -470,9 +507,18 @@ export async function runE2ESuite({
       withPage({}, async (page) => {
         await getEnableSoundButton(page).click();
         await scrollToProgress(page, CH_MIDPOINTS['04']);
-        await page.waitForTimeout(1200);
+        await page.waitForFunction(
+          () => {
+            const a = window.__DEFENDER_APP__?.getAudioState?.();
+            return Boolean(a && a.isRunning === true && !a.isCranking && a.rpm >= 520 && a.rpm <= 820);
+          },
+          null,
+          { timeout: 4500 }
+        );
+        await page.waitForTimeout(300);
         const t = await getTelemetry(page);
         assertEqual(t.audio.isRunning, true, 'isRunning in CH 04');
+        assertEqual(t.audio.isCranking, false, 'isCranking settled in CH 04');
         assertRange(t.audio.rpm, 520, 820, 'CH 04 idle RPM');
         return { metrics: { idleRPM: t.audio.rpm } };
       }),
@@ -507,10 +553,20 @@ export async function runE2ESuite({
         await scrollToProgress(page, CH_MIDPOINTS['06']);
         const { maxRPM } = await holdRevAndSample(page, { durationMs: 3200 });
         assert(maxRPM >= 6850, `Expected maxRPM >= 6850, got ${maxRPM}`);
-        await page.waitForTimeout(2600);
+        await page.waitForFunction(
+          () => {
+            const a = window.__DEFENDER_APP__?.getAudioState?.();
+            return Boolean(a && a.throttle === 0 && a.rpm < 1500);
+          },
+          null,
+          { timeout: 4500 }
+        );
         const after = await getTelemetry(page);
         assertEqual(after.audio.throttle, 0, 'throttle after release');
-        assert(after.audio.rpm < 1500, `Expected decelerated rpm < 1500, got ${after.audio.rpm}`);
+        assert(
+          after.audio.rpm < 1500 && after.audio.rpm < maxRPM,
+          `Expected decelerated rpm < 1500 and below peak (${maxRPM}), got ${after.audio.rpm}`
+        );
         return { metrics: { peakRPM: maxRPM, releasedRPM: after.audio.rpm } };
       }),
   });
@@ -957,14 +1013,32 @@ export async function runE2ESuite({
       withPage({}, async (page) => {
         await getEnableSoundButton(page).click();
         await scrollToProgress(page, CH_MIDPOINTS['06']);
-        await holdRevAndSample(page, { durationMs: 3000 });
-        await page.waitForTimeout(1800);
+        const { maxRPM } = await holdRevAndSample(page, { durationMs: 3000 });
+        assert(maxRPM >= 6500, `Expected peak RPM >= 6500 before release, got ${maxRPM}`);
+        await page.waitForFunction(
+          () => {
+            const a = window.__DEFENDER_APP__?.getAudioState?.();
+            return Boolean(a && a.throttle === 0 && a.rpm < 3000);
+          },
+          null,
+          { timeout: 3200 }
+        );
         const mid = await getTelemetry(page);
-        assert(mid.audio.rpm < 3000, `Expected rpm < 3000 after 1.8s decel, got ${mid.audio.rpm}`);
-        await page.waitForTimeout(1700);
+        assert(mid.audio.rpm < 3000 && mid.audio.rpm < maxRPM, `Expected mid decel rpm < 3000, got ${mid.audio.rpm}`);
+        await page.waitForFunction(
+          () => {
+            const a = window.__DEFENDER_APP__?.getAudioState?.();
+            return Boolean(a && a.throttle === 0 && a.rpm < 950);
+          },
+          null,
+          { timeout: 3500 }
+        );
         const settled = await getTelemetry(page);
-        assert(settled.audio.rpm < 950, `Expected settled rpm < 950 after 3.5s, got ${settled.audio.rpm}`);
-        return { metrics: { midRPM: mid.audio.rpm, settledRPM: settled.audio.rpm } };
+        assert(
+          settled.audio.rpm < 950 && settled.audio.rpm < mid.audio.rpm,
+          `Expected settled rpm < 950 (mid=${mid.audio.rpm}), got ${settled.audio.rpm}`
+        );
+        return { metrics: { peakRPM: maxRPM, midRPM: mid.audio.rpm, settledRPM: settled.audio.rpm } };
       }),
   });
 

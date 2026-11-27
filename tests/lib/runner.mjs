@@ -25,12 +25,22 @@ export function parseArgs(argv = process.argv.slice(2)) {
     else if (arg === '--skip-lighthouse') opts.skipLighthouse = true;
     else if (arg === '--strict-port') opts.strictPort = true;
     else if (arg.startsWith('--tier=')) {
-      const val = arg.slice('--tier='.length).trim().toLowerCase();
+      const rawVal = arg.slice('--tier='.length).trim();
+      const val = rawVal.toLowerCase();
       if (val !== 'all' && val !== '') {
-        opts.tiers = val
-          .split(',')
-          .map((s) => Number(s.trim()))
-          .filter((n) => Number.isFinite(n));
+        const tokens = rawVal.split(',').map((s) => s.trim());
+        const parsedTiers = [];
+        for (const tok of tokens) {
+          if (!/^\d+$/.test(tok)) {
+            throw new Error(`Invalid --tier token "${tok}" in "${arg}". Expected integer tier(s) (1..4) or "all".`);
+          }
+          const n = Number(tok);
+          if (n < 1 || n > 4) {
+            throw new Error(`Invalid --tier value ${n} in "${arg}". Expected tier in 1..4.`);
+          }
+          parsedTiers.push(n);
+        }
+        opts.tiers = parsedTiers;
       }
     } else if (arg.startsWith('--id=')) {
       const val = arg.slice('--id='.length).trim();

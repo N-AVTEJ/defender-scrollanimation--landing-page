@@ -109,6 +109,13 @@ async function runSmoke() {
   assertEqual(parsedCli.port, 4175, 'parseArgs port');
   assertEqual(parsedCli.mock, true, 'parseArgs mock');
   assertEqual(parsedCli.out, 'tests/artifacts/smoke', 'parseArgs out');
+  let badTierThrew = false;
+  try {
+    parseArgs(['--tier=abc']);
+  } catch {
+    badTierThrew = true;
+  }
+  assert(badTierThrew, 'parseArgs must throw on non-numeric --tier token');
 
   const testRunner = new TestRunner();
   testRunner.add({ id: 'SYN-PASS', tier: 1, feature: 'Runner', name: 'Pass check', fn: async () => assertEqual(1 + 1, 2) });

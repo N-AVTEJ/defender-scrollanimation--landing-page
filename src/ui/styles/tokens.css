@@ -1,0 +1,29 @@
+/**
+ * Design Tokens — Land Rover Defender V8 Expedition-Luxury Editorial Palette
+ * Synchronized with src/config/config.js (PALETTE & TYPOGRAPHY).
+ */
+:root {
+  --bg-void: #0b0c0a;
+  --bg-surface: #141512;
+  --bg-elevated: #1b1d18;
+  --text-bone: #e8e2d3;
+  --text-muted: #8d8779;
+  --accent-signal: #e0541f;
+  --fuji-white: #f4f1ea;
+  --hairline: rgba(232, 226, 211, 0.16);
+  --hairline-strong: rgba(232, 226, 211, 0.34);
+
+  --font-display: 'Big Shoulders Display', sans-serif;
+  --font-serif: 'Instrument Serif', serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+
+  --letterbox-h: 40px;
+  --scroll-height: 900vh;
+  --ease-editorial: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (max-width: 768px) {
+  :root {
+    --letterbox-h: 34px;
+  }
+}

@@ -608,7 +608,8 @@ const MOCK_HTML = `<!doctype html>
         state.isLimiting = false;
         const lope = Math.sin((now / 1000) * Math.PI * 2 * 10) * 18;
         state.targetRPM = 650 + lope;
-        state.rpm += (state.targetRPM - state.rpm) * 1.15 * dt;
+        const k = state.rpm < state.targetRPM ? 2.2 : 1.15;
+        state.rpm += (state.targetRPM - state.rpm) * k * dt;
       }
 
       const normRpm = Math.max(0, Math.min(1, state.rpm / 7200));

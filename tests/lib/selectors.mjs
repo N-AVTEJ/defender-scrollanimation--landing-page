@@ -119,7 +119,10 @@ export async function waitForAppReady(page, timeoutMs = 20000) {
       const debug = app.getSceneDebug();
       if (!debug || debug.isReady !== true) return false;
       const loader = document.querySelector('[role="progressbar"], [data-testid="loader"], #loader-curtain');
-      if (loader && loader.getAttribute('data-loading') === 'true') return false;
+      if (loader) {
+        if (loader.getAttribute('data-loading') === 'true') return false;
+        if (loader.getAttribute('data-loaded') === 'false') return false;
+      }
       return true;
     },
     null,
